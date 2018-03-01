@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Layout for the editor -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/activity_margin"
+    tools:context=".EditorActivity">
+
+    <ImageView
+        android:id="@+id/imageview_add_product"
+        style="@style/product_image_style"
+        tools:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/product_image_content_description" />
+
+    <Button
+        android:id="@+id/add_product_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="@string/add_image_button" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_name" />
+
+        <LinearLayout style="@style/name_layout_style">
+
+            <EditText
+                android:id="@+id/edit_product_name"
+                style="@style/EditorFieldStyle"
+                android:hint="@string/hint_product_name"
+                android:inputType="textCapWords" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/container_price"
+        style="@style/price_container_style">
+
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/price_label" />
+
+        <LinearLayout style="@style/price_layout_style">
+
+            <EditText
+                android:id="@+id/edit_product_price"
+                style="@style/EditorFieldStyle"
+                android:hint="@string/hint_product_price"
+                 />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/container_quantity"
+        style="@style/quantity_container_style">
+
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/quantity_label" />
+
+        <LinearLayout style="@style/quantity_layout_style">
+
+            <Button
+                android:id="@+id/decrease_button"
+                style="@style/quantity_button_style"
+                android:text="@string/decrease" />
+
+            <EditText
+                android:id="@+id/edit_quantity"
+                style="@style/edit_quantity_style"
+                android:hint="@string/quantity_hint" />
+
+            <Button
+                android:id="@+id/increase_button"
+                style="@style/quantity_button_style"
+                android:text="@string/increase" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/order_button"
+        android:text="@string/place_an_order"
+        style="@style/place_order_style" />
+
+
+    <Button
+        android:id="@+id/delete_button"
+        android:text="@string/delete_this_product"
+        style="@style/delete_button_style" />
+
+</LinearLayout>

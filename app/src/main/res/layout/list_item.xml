@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout style="@style/list_layout_style">
+
+        <TextView
+            android:id="@+id/name"
+            tools:text="Max"
+            style="@style/list_name_style" />
+
+        <TextView
+            android:id="@+id/price"
+            tools:text="$1.50"
+            style="@style/list_price_style" />
+
+        <TextView
+            android:id="@+id/quantity"
+            tools:text="121 in stock"
+            style="@style/list_quantity_style" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/sale_button"
+        android:text="@string/sold_button_text"
+        style="@style/list_sale_style" />
+
+</LinearLayout>
