@@ -31,6 +31,8 @@ public class MoneyTextWatcher implements TextWatcher {
         EditText editText = editTextWeakReference.get();
         if (editText == null) return;
         String s = editable.toString();
+        // don't allow typing of currency symbols for example $,€.
+        s = s.replaceAll("[^\\d.]", "");
         if (s.isEmpty()) return;
         editText.removeTextChangedListener(this);
         String formatted = NumberFormat.getCurrencyInstance().format(getDecimal(s));
