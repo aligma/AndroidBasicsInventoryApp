@@ -16,4 +16,8 @@
     <color name="editorColorPrimaryDark">#394450</color>
 
     <color name="colorSoldBackground">#cccccc</color>
+
+    <color name="colorEmptySubtitle">#A2AAB0</color>
+    <color name="colorListTitle">#2B3D4D</color>
+    <color name="colorListDetail">#AEB6BD</color>
 </resources>

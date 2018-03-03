@@ -27,8 +27,10 @@ import android.widget.Toast;
 import com.example.david.androidbasicsinventoryapp.data.ProductContract;
 import com.example.david.androidbasicsinventoryapp.data.ProductContract.ProductEntry;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URISyntaxException;
 
 public class EditorActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -39,7 +41,7 @@ public class EditorActivity extends AppCompatActivity implements
     private EditText mPriceEditText;
     private EditText mQuantityEditText;
     private boolean mProductHasChanged = false;
-    private String mCurrentPhotoPath;
+    private Uri mCurrentPhotoPath;
     private String imageUri;
 
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
@@ -95,15 +97,15 @@ public class EditorActivity extends AppCompatActivity implements
 
     // intent code sourced from https://stackoverflow.com/questions/5309190/android-pick-images-from-gallery
     // answer https://stackoverflow.com/a/5309217/59996
+    // updated with some code from https://github.com/crlsndrsjmnz/MyShareImageExample with was based on code at https://developer.android.com/training/camera/index.html
     private void wireUpAddImageButton() {
         Button addImageButton = findViewById(R.id.add_product_image_button);
         addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, getString(R.string.select_picture_title)), PICK_IMAGE);
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/* video/*");
+                startActivityForResult(pickIntent, PICK_IMAGE);
             }
         });
     }
@@ -198,13 +200,7 @@ public class EditorActivity extends AppCompatActivity implements
         if (requestCode == PICK_IMAGE && resultCode == RESULT_OK) {
             if (data != null) {
                 Uri uri = data.getData();
-
-                try {
-                    mCurrentPhotoPath = PathUtil.getPath(getBaseContext(), uri);
-                } catch (URISyntaxException e) {
-                    return;
-                }
-
+                mCurrentPhotoPath = uri;
                 imageUri = uri.toString();
                 setPic();
             }
@@ -212,6 +208,7 @@ public class EditorActivity extends AppCompatActivity implements
     }
 
     // Sourced from https://developer.android.com/training/camera/photobasics.html#TaskScalePhoto
+    // modified using the example at https://github.com/crlsndrsjmnz/MyShareImageExample as a reference
     private void setPic() {
         // Get the dimensions of the View
         int targetW = mImageView.getWidth();
@@ -222,23 +219,45 @@ public class EditorActivity extends AppCompatActivity implements
             return;
         }
 
-        // Get the dimensions of the bitmap
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        bmOptions.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        int photoW = bmOptions.outWidth;
-        int photoH = bmOptions.outHeight;
+        Log.d(LOG_TAG, "setPic uri " + mCurrentPhotoPath.toString());
 
-        // Determine how much to scale down the image
-        int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+        InputStream input = null;
+        try {
+            input = this.getContentResolver().openInputStream(mCurrentPhotoPath);
 
-        // Decode the image file into a Bitmap sized to fill the View
-        bmOptions.inJustDecodeBounds = false;
-        bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
 
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-        mImageView.setImageBitmap(bitmap);
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / targetW, photoH / targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+
+            input = this.getContentResolver().openInputStream(mCurrentPhotoPath);
+            Bitmap bitmap = BitmapFactory.decodeStream(input, null, bmOptions);
+            input.close();
+            mImageView.setImageBitmap(bitmap);
+
+        } catch (FileNotFoundException fne) {
+            Log.e(LOG_TAG, "Failed to load image.", fne);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+        } finally {
+            try {
+                input.close();
+            } catch (IOException ioe) {
+                Log.e(LOG_TAG, "unhandled IOException", ioe);
+            }
+        }
     }
 
 
@@ -320,16 +339,6 @@ public class EditorActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.menu_editor, menu);
         return true;
     }
-
-    /**
-     * This method is called after invalidateOptionsMenu(), so that the
-     * menu can be updated (some menu items can be hidden or made visible).
-     */
-/*    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        return true;
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -423,11 +432,7 @@ public class EditorActivity extends AppCompatActivity implements
             mNameEditText.setText(name);
             mPriceEditText.setText(Integer.toString(weight));
             mQuantityEditText.setText(Integer.toString(quantity));
-            try {
-                mCurrentPhotoPath = PathUtil.getPath(getBaseContext(), Uri.parse(imageUri));
-            } catch (URISyntaxException e) {
-                return;
-            }
+            mCurrentPhotoPath = Uri.parse(imageUri);
             setPic();
         }
     }
